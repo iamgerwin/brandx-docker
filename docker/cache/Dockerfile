@@ -1,0 +1,4 @@
+FROM redis:3.2.11
+MAINTAINER iamgerwin
+
+EXPOSE 6379

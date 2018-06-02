@@ -1,0 +1,41 @@
+version: '2'
+
+networks:
+  default:
+    external:
+      name: local_network_bridge
+
+services:
+  db:
+    build: ./docker/db
+    ports:
+      - '3310:3306'
+    volumes:
+      - ./db_data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD:root
+      - MYSQL_DATABASE:brandx_db
+      - MYSQL_USER:user
+      - MYSQL_PASSWORD:pass
+  cache:
+    build: ./docker/cache
+    ports:
+      - '6310:6379'
+
+  web:
+    build: ./docker/web
+    links:
+      - db
+    ports:
+      - '8010:80'
+    restart: always
+    environment:
+      - APACHE_RUN_USER=www-data
+      - VIRTUAL_HOST=brandx.dev.com
+    volumes:
+      - ./brandx/:/var/www/html/
+      # - ./sites-available/:/etc/apache2/sites-available/
+      # - ./logs/error.log:/var/log/apache2/error.log
+      # - ./logs/access.log:/var/log/apache2/access.log
+    depends_on:
+      - db
